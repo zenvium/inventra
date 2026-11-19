@@ -3,7 +3,7 @@
 Each file in this folder is a standalone implementation request for one roadmap feature. Start from the repository root and give the selected file to the coding agent.
 
 
-Each feature prompt contains its own project context, implementation requirements, and Board task-planning instructions. Use the selected prompt directly; no other prompt is a prerequisite.
+Each feature prompt contains its own project context, implementation requirements, and BothyBothyBoard task-planning instructions. Use the selected prompt directly; no other prompt is a prerequisite.
 ## Prompts
 
 | Feature | Prompt |
