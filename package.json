@@ -1,0 +1,36 @@
+{
+	"name": "inventra",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@11.28.3",
+	"engines": { "node": "22.23.4" },
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "pnpm proxy:ensure && turbo watch azurite dev --filter='./apps/*'",
+		"dev:worktree": "pnpm proxy:ensure && WORKTREE_NAME=$(basename $PWD) turbo watch azurite dev:worktree --filter='./apps/*'",
+		"proxy:ensure": "pnpm exec portless proxy start --https -p 1355 || true",
+		"proxy:stop": "pnpm exec portless proxy stop || true",
+		"lint": "turbo run lint",
+		"test": "turbo run test",
+		"test:arch": "turbo run test:arch",
+		"gen": "graphql-codegen --config codegen.yml",
+		"gen:watch": "graphql-codegen --config codegen.yml --watch",
+		"format": "turbo run format",
+		"format:check": "turbo run format:check",
+		"clean": "turbo run clean && rimraf node_modules"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.10",
+		"@graphql-codegen/cli": "^5.0.7",
+		"@graphql-codegen/typescript": "^4.1.6",
+		"@graphql-codegen/typescript-resolvers": "^4.5.1",
+		"@typescript/native-preview": "catalog:",
+		"@types/node": "catalog:",
+		"concurrently": "^9.1.2",
+		"portless": "0.11.1",
+		"rimraf": "catalog:",
+		"turbo": "catalog:",
+		"typescript": "catalog:"
+	}
+}

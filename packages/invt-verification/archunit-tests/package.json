@@ -1,0 +1,35 @@
+{
+	"name": "@invt-verification/archunit-tests",
+	"version": "1.0.0",
+	"description": "Architectural fitness tests for Inventra Cellix slices described by the cellix-rosetta skill.",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./domain": "./src/domain.ts",
+		"./persistence": "./src/persistence.ts",
+		"./application-services": "./src/application-services.ts",
+		"./data-sources-mongoose-models": "./src/data-sources-mongoose-models.ts",
+		"./api-composition": "./src/api-composition.ts",
+		"./graphql": "./src/graphql.ts",
+		"./queue-operations": "./src/queue-operations.ts",
+		"./timer-operations": "./src/timer-operations.ts"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"test:arch": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit --pretty false",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format ."
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/node": "catalog:",
+		"archunit": "^2.1.63",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

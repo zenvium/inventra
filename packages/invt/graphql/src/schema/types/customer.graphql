@@ -1,0 +1,23 @@
+type Address {
+	street: String!
+	city: String!
+	state: String
+	postalCode: String!
+	country: String!
+}
+
+type Customer implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	name: String!
+	email: String
+	phone: String
+	address: Address
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	customerById(id: ObjectID!): Customer
+}

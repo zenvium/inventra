@@ -1,0 +1,45 @@
+overwrite: true
+
+schema:
+  - './packages/cellix/graphql-core/src/schema/**/**.graphql'
+  - './packages/cellix/graphql-core/src/schema/core/graphql-tools-scalars.ts'
+  - './packages/invt/graphql/src/schema/types/**.graphql'
+
+generates:
+  './packages/invt/graphql/src/schema/builder/generated.ts':
+    config:
+      contextType: '../context.ts#GraphContext'
+      useIndexSignature: true
+      useTypeImports: true
+      enumsAsTypes: true
+      immutableTypes: true
+      scalars:
+        ObjectID: string
+        DateTime: Date
+      mappers:
+        Customer: "import('@invt/domain').Domain.Contexts.Partner.Customer.CustomerEntityReference"
+        Inventory: "import('@invt/domain').Domain.Contexts.Inventory.Inventory.InventoryEntityReference"
+        Organization: "import('@invt/domain').Domain.Contexts.Organization.Organization.OrganizationEntityReference"
+        Product: "import('@invt/domain').Domain.Contexts.Catalog.Product.ProductEntityReference"
+        PurchaseOrder: "import('@invt/domain').Domain.Contexts.Procurement.PurchaseOrder.PurchaseOrderEntityReference"
+        SalesOrder: "import('@invt/domain').Domain.Contexts.Sale.SalesOrder.SalesOrderEntityReference"
+        StockMovement: "import('@invt/domain').Domain.Contexts.Inventory.StockMovement.StockMovementEntityReference"
+        Supplier: "import('@invt/domain').Domain.Contexts.Partner.Supplier.SupplierEntityReference"
+        User: "import('@invt/domain').Domain.Contexts.User.User.UserEntityReference"
+        Warehouse: "import('@invt/domain').Domain.Contexts.Inventory.Warehouse.WarehouseEntityReference"
+    plugins:
+      - typescript
+      - typescript-resolvers
+
+  './packages/invt/graphql/src/schema/builder/schema-type-defs.generated.ts':
+    plugins:
+      - '@cellix/graphql-codegen/plugins/static-type-defs':
+          sourceDir: 'packages/invt/graphql/src/schema/types'
+          exportName: 'invtGraphqlTypeDefs'
+
+  './packages/invt/graphql/src/schema/builder/resolver-manifest.generated.ts':
+    plugins:
+      - '@cellix/graphql-codegen/plugins/resolver-manifest':
+          typesDir: 'packages/invt/graphql/src/schema/types'
+          resolversExportName: 'invtGraphqlResolvers'
+          permissionsExportName: 'invtGraphqlPermissions'

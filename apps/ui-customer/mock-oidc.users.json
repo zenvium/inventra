@@ -1,0 +1,9 @@
+[
+	{
+		"username": "customer@example.com",
+		"sub": "00000000-0000-4000-8000-000000000101",
+		"password": "password",
+		"oidcConfigName": "customer",
+		"claims": { "email": "customer@example.com", "given_name": "Alex", "family_name": "Morgan" }
+	}
+]

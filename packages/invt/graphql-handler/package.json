@@ -1,0 +1,37 @@
+{
+	"name": "@invt/graphql-handler",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --build",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@azure/functions": "catalog:",
+		"@invt/application-services": "workspace:*",
+		"@invt/graphql": "workspace:*",
+		"@cellix/service-apollo-server": "workspace:*",
+		"graphql": "catalog:",
+		"@cellix/api-core": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/node": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

@@ -1,0 +1,15 @@
+type Inventory implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	productId: ObjectID!
+	warehouseId: ObjectID!
+	quantityOnHand: Float!
+	quantityReserved: Float!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	inventoryById(id: ObjectID!): Inventory
+}

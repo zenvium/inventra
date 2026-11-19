@@ -1,0 +1,17 @@
+type Supplier implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	name: String!
+	contactName: String
+	email: String
+	phone: String
+	address: Address
+	isActive: Boolean!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	supplierById(id: ObjectID!): Supplier
+}

@@ -1,0 +1,31 @@
+enum PurchaseOrderStatus {
+	DRAFT
+	SUBMITTED
+	PARTIALLY_RECEIVED
+	RECEIVED
+	CANCELLED
+}
+
+type PurchaseOrderItem {
+	productId: ObjectID!
+	quantityOrdered: Float!
+	quantityReceived: Float!
+	unitCost: Float!
+}
+
+type PurchaseOrder implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	supplierId: ObjectID!
+	warehouseId: ObjectID!
+	status: PurchaseOrderStatus!
+	items: [PurchaseOrderItem!]!
+	expectedDeliveryDate: DateTime
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	purchaseOrderById(id: ObjectID!): PurchaseOrder
+}

@@ -1,0 +1,8 @@
+# Export many structures
+
+More than one subdomain is exported in the format the user requested. Use the subdomains the user named. When the user asked for the repo, that set is every aggregate that has a mongoose model. One subdomain stays [Export one sheet](export-single-sheet.md). Do not follow that page in the parent. Do not change the product files.
+
+1. Find the aggregates that have a mongoose model. The user named several subdomains: those models. The user asked for the repo: every aggregate that has a mongoose model. A named subdomain with no model is left out. Say so.
+2. Dispatch one subagent per model. Start them together. Do not resume a subagent. Each subagent opens only [Export one sheet](export-single-sheet.md). Pass the context and the subdomain. Tell it to return the document and not write the output.
+3. Wait until every subagent finishes. For plain-text output, combine the returned objects using [text-format.md](../text-format.md) and return or save the Markdown requested. For workbook output, follow [excel/write.md](../excel/write.md) once. The file is `<identifier>-system-design-details-output.xlsx` at the repo root. `<identifier>` is `<scope>` from [file-tree.md](../file-tree.md) with the leading `@` removed. Send `{ "overviewTitle": "<dictionary title>", "documents": [ ...the documents the subagents returned ] }`. Copy `overviewTitle` from the existing dictionary when one exists. When it does not, omit the cover. Do not invent a product name. Models that share `contextTitle` share one Overview card.
+4. Tell the user which subdomains are in the output and which named subdomains had no model.

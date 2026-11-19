@@ -1,0 +1,26 @@
+enum StockMovementType {
+	RECEIPT
+	SALE
+	ADJUSTMENT
+	TRANSFER_IN
+	TRANSFER_OUT
+}
+
+type StockMovement implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	productId: ObjectID!
+	warehouseId: ObjectID!
+	type: StockMovementType!
+	quantityChange: Float!
+	referenceId: ObjectID
+	reason: String
+	performedBy: ObjectID
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	stockMovementById(id: ObjectID!): StockMovement
+}

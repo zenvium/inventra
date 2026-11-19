@@ -1,0 +1,18 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", "build/**"]
+		},
+		"dev": { "dependsOn": ["^build"], "cache": false, "persistent": true },
+		"dev:worktree": { "dependsOn": ["^build"], "cache": false, "persistent": true },
+		"azurite": { "dependsOn": ["^build"], "cache": false, "persistent": true },
+		"lint": {},
+		"test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] },
+		"test:arch": { "dependsOn": ["^build"], "outputs": [] },
+		"format": { "cache": false },
+		"format:check": {},
+		"clean": { "cache": false }
+	}
+}
