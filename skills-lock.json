@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "skills": {
+    "board": {
+      "source": "vercel/board",
+      "commit": "84b2463638810c35b3d76f5d71c167802d8915b4",
+      "sourceType": "github",
+      "skillPath": "skills/board/SKILL.md",
+      "computedHash": "084261eb3c844cc8e8be3bc590dacd169d6ebbf08289c48a82ca128aca1ccbc3"
+    },
+    "configure-factory-board": {
+      "source": "vercel/board",
+      "commit": "84b2463638810c35b3d76f5d71c167802d8915b4",
+      "sourceType": "github",
+      "skillPath": "skills/configure-factory-board/SKILL.md",
+      "computedHash": "85a3566eb5a3086a5181ffca7c58c6eaf01c9b3e786c82909542fe81d62d131c"
+    },
+    "pr-description": {
+      "source": "vercel/board",
+      "commit": "84b2463638810c35b3d76f5d71c167802d8915b4",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/pr-description/SKILL.md",
+      "computedHash": "fa53e2c8174a4d345953322ee4795335109414a9d92391e1826a6838a45d2c94"
+    },
+    "verify-board": {
+      "source": "vercel/board",
+      "commit": "84b2463638810c35b3d76f5d71c167802d8915b4",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/verify-board/SKILL.md",
+      "computedHash": "20ff25b51c7dbb0c92ac73400cf5cbd2cbe01e6657ad1012d7036de55472df12"
+    }
+  }
+}
