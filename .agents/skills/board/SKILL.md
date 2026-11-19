@@ -10,25 +10,11 @@ labels, and reactions, kept in Vercel's API. Use it through `vercel board`,
 which comes with the Vercel CLI and uses the user's `vercel login`. Run
 `vercel board <command> --help` for flags.
 
-In this repository, invoke the CLI with `pnpm dlx vercel@latest` so it uses
-the Node and pnpm versions active in the user's mise environment without
-adding a dependency or requiring a global install. Examples below show the
-`vercel` command; prefix them with `pnpm dlx vercel@latest`. Login credentials
-are stored by the CLI in the user's account-level config, not in this repo.
-
 ## Find the board
-
-For this repository, use the project-specific board named `inventra` by adding
-`--name inventra` to every command. Do not fall back to the team's `General`
-board. This repo is not linked to a Vercel project, so pass the intended team
-with `--scope <team-slug>`; do not guess from the account's default team. The
-board name separates its content from other boards, but new boards inherit
-team-wide access. Narrow grants if the user wants access restricted to a
-particular Vercel project.
 
 | When | Run |
 | --- | --- |
-| In this project's checkout | Use `--name inventra --scope <team-slug>` |
+| In the project's checkout | Nothing extra: after `vercel link`, it's the team's board |
 | The user means another of the team's boards | Add `--name <board>`, and `--ensure` to create it |
 | The user means another team's board | Add `--scope <team>` |
 | The user gives you a board URL | Add `--url <url>`, or set `BOARD_URL` |
