@@ -1,0 +1,345 @@
+import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer, Socket } from 'node:net';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { BlobClient, BlobServiceClient } from '@azure/storage-blob';
+import { ServiceClientBlobStorage } from '@cellix/service-blob-storage';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+describe('ServiceClientBlobStorage integration with Azurite', () => {
+	let azurite: AzuriteBlobServer;
+	let service: ServiceClientBlobStorage;
+	const accountName = 'devstoreaccount1';
+
+	beforeAll(async () => {
+		azurite = await startAzuriteBlobServer();
+		service = new ServiceClientBlobStorage({
+			accountName,
+			signingConnectionString: azurite.connectionString,
+		});
+		await service.startUp();
+	});
+
+	afterAll(async () => {
+		if (service) {
+			await service.shutDown();
+		}
+		if (azurite) {
+			await azurite.stop();
+		}
+	});
+
+	it('uploads, lists, and generates read SAS tokens against Azurite', async () => {
+		const containerName = `cellix-${Date.now()}`;
+		const blobName = 'folder/test.txt';
+		const text = 'hello from azurite';
+		const expiresOn = new Date(Date.now() + 5 * 60_000);
+
+		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
+
+		let containerCreated = false;
+		for (let attempt = 0; attempt < 3; attempt++) {
+			try {
+				await blobServiceClient.getContainerClient(containerName).create();
+				containerCreated = true;
+				break;
+			} catch (_error) {
+				if (attempt < 2) {
+					await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+				}
+			}
+		}
+
+		if (!containerCreated) {
+			throw new Error('Failed to create container with Azurite');
+		}
+
+		await service.uploadText({
+			containerName,
+			blobName,
+			text,
+			httpHeaders: { blobContentType: 'text/plain' },
+			metadata: { source: 'integration-test' },
+			tags: { scope: 'framework' },
+		});
+
+		const blobs = await service.listBlobs({
+			containerName,
+			prefix: 'folder/',
+		});
+		expect(blobs.map((blob) => blob.name)).toEqual([blobName]);
+		expect(blobs[0]?.url).toContain(`/${containerName}/${blobName}`);
+
+		const readSasToken = await service.generateReadSasToken({
+			containerName,
+			blobName,
+			expiresOn,
+		});
+		expect(readSasToken).toContain('sig=');
+
+		const blobUrl = blobServiceClient.getContainerClient(containerName).getBlockBlobClient(blobName).url;
+		const readSasUrl = `${blobUrl}?${readSasToken}`;
+		const sasReadClient = new BlobClient(readSasUrl);
+		const downloadResponse = await sasReadClient.download();
+		const downloadedText = await streamToString(downloadResponse.readableStreamBody);
+		expect(downloadedText).toBe(text);
+
+		await service.deleteBlob({
+			containerName,
+			blobName,
+		});
+
+		const remainingNames: string[] = [];
+		for await (const blob of blobServiceClient.getContainerClient(containerName).listBlobsFlat({ prefix: 'folder/' })) {
+			remainingNames.push(blob.name);
+		}
+		expect(remainingNames).toEqual([]);
+	});
+
+	it('creates containers idempotently, reads blob properties, and issues read-only container SAS tokens', async () => {
+		const containerName = `cellix-sas-${Date.now()}`;
+		const otherContainerName = `cellix-other-${Date.now()}`;
+		const blobName = 'video-1/manifest.mpd';
+
+		await service.createContainerIfNotExists({ containerName });
+		await service.createContainerIfNotExists({ containerName });
+		await service.createContainerIfNotExists({ containerName: otherContainerName });
+
+		expect(await service.getBlobProperties({ containerName, blobName })).toBeNull();
+		await service.uploadText({ containerName, blobName, text: '<MPD/>', httpHeaders: { blobContentType: 'application/dash+xml' }, metadata: { videoid: 'video-1' } });
+		await service.uploadText({ containerName: otherContainerName, blobName, text: 'other' });
+
+		const properties = await service.getBlobProperties({ containerName, blobName });
+		expect(properties).toMatchObject({ contentLength: 6, contentType: 'application/dash+xml', metadata: { videoid: 'video-1' } });
+		expect(properties?.lastModified).toBeInstanceOf(Date);
+
+		const sas = await service.generateContainerReadSasToken({ containerName, expiresOn: new Date(Date.now() + 5 * 60_000) });
+		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
+		const urlFor = (container: string, name: string) => `${service.getBlobUrl({ containerName: container, blobName: name })}?${sas}`;
+		expect(service.getBlobUrl({ containerName, blobName })).toBe(blobServiceClient.getContainerClient(containerName).getBlockBlobClient(blobName).url);
+
+		const read = await fetch(urlFor(containerName, blobName));
+		expect(read.status).toBe(200);
+		expect(await read.text()).toBe('<MPD/>');
+
+		const otherContainer = await fetch(urlFor(otherContainerName, blobName));
+		expect(otherContainer.status).toBe(403);
+
+		const write = await fetch(urlFor(containerName, 'video-1/injected.m4s'), { method: 'PUT', headers: { 'x-ms-blob-type': 'BlockBlob' }, body: 'x' });
+		expect(write.status).toBe(403);
+
+		const list = await fetch(`${blobServiceClient.getContainerClient(containerName).url}?restype=container&comp=list&${sas}`);
+		expect(list.status).toBe(403);
+	});
+
+	it('issues blob-scoped write SAS tokens that create and overwrite one blob only', async () => {
+		const containerName = `cellix-write-${Date.now()}`;
+		const blobName = 'video-1/720/1.m4s';
+		await service.createContainerIfNotExists({ containerName });
+		await service.uploadText({ containerName, blobName: 'video-2/manifest.mpd', text: 'other video' });
+
+		const sas = await service.generateWriteSasToken({ containerName, blobName, expiresOn: new Date(Date.now() + 5 * 60_000) });
+		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
+		const urlFor = (name: string) => `${blobServiceClient.getContainerClient(containerName).getBlockBlobClient(name).url}?${sas}`;
+		const put = (name: string, body: string) => fetch(urlFor(name), { method: 'PUT', headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': 'video/mp4' }, body });
+
+		expect((await put(blobName, 'first')).status).toBe(201);
+		expect((await put(blobName, 'second encode')).status).toBe(201);
+		expect(await service.getBlobProperties({ containerName, blobName })).toMatchObject({ contentLength: 'second encode'.length, contentType: 'video/mp4' });
+
+		expect((await put('video-2/manifest.mpd', 'overwrite another video')).status).toBe(403);
+		expect((await fetch(urlFor(blobName))).status).toBe(403);
+		expect((await fetch(urlFor(blobName), { method: 'DELETE' })).status).toBe(403);
+	});
+
+	it('accepts a direct upload signed with createBlobWriteAuthorizationHeader and rejects tampered requests', async () => {
+		const containerName = `cellix-upload-${Date.now()}`;
+		const blobName = 'community-1/video-1';
+		const body = Buffer.from(Array.from({ length: 2048 }, (_, index) => index % 256));
+		await service.createContainerIfNotExists({ containerName });
+
+		const signed = await service.createBlobWriteAuthorizationHeader({ containerName, blobName, contentLength: body.length, contentType: 'video/mp4', metadata: { videoid: 'video-1' } });
+		const put = (url: string, headers: Record<string, string>, payload: Buffer) => fetch(url, { method: 'PUT', headers: { ...headers, Authorization: signed.authorizationHeader }, body: new Uint8Array(payload) });
+		const { 'Content-Length': _contentLength, ...headers } = signed.headers;
+
+		expect((await put(signed.url, { ...headers, 'Content-Type': 'video/webm' }, body)).status).toBe(403);
+		expect((await put(signed.url, headers, body.subarray(0, 1024))).status).toBe(403);
+		expect((await put(signed.url.replace('video-1', 'video-2'), headers, body)).status).toBe(403);
+
+		const accepted = await put(signed.url, headers, body);
+		expect(accepted.status).toBe(201);
+		expect(await service.getBlobProperties({ containerName, blobName })).toMatchObject({ contentLength: 2048, contentType: 'video/mp4', metadata: { videoid: 'video-1' } });
+	});
+
+	it('round-trips binary files and reports missing blobs with a 404', async () => {
+		const containerName = `cellix-files-${Date.now()}`;
+		const blobName = 'media/sample.bin';
+		const workDir = mkdtempSync(join(tmpdir(), 'cellix-blob-files-'));
+		const sourcePath = join(workDir, 'source.bin');
+		const downloadPath = join(workDir, 'downloaded.bin');
+		const bytes = Buffer.from(Array.from({ length: 4096 }, (_, index) => index % 256));
+		writeFileSync(sourcePath, bytes);
+
+		try {
+			await BlobServiceClient.fromConnectionString(azurite.connectionString).getContainerClient(containerName).create();
+
+			await service.uploadFile({
+				containerName,
+				blobName,
+				filePath: sourcePath,
+				httpHeaders: { blobContentType: 'application/octet-stream' },
+			});
+			await service.downloadToFile({ containerName, blobName, filePath: downloadPath });
+
+			expect(readFileSync(downloadPath).equals(bytes)).toBe(true);
+			await expect(service.downloadToFile({ containerName, blobName: 'media/missing.bin', filePath: downloadPath })).rejects.toMatchObject({ statusCode: 404 });
+		} finally {
+			rmSync(workDir, { recursive: true, force: true });
+		}
+	});
+});
+
+async function streamToString(stream: NodeJS.ReadableStream | null | undefined): Promise<string> {
+	if (!stream) {
+		throw new Error('Expected a readable stream from blob download');
+	}
+
+	const chunks: Buffer[] = [];
+	for await (const chunk of stream) {
+		chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+	}
+	return Buffer.concat(chunks).toString('utf8');
+}
+
+interface AzuriteBlobServer {
+	connectionString: string;
+	stop: () => Promise<void>;
+}
+
+async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
+	const accountName = 'devstoreaccount1';
+	const accountKey = createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
+	const port = await getAvailablePort();
+	const location = mkdtempSync(join(tmpdir(), 'cellix-azurite-blob-'));
+	let processHandle: ChildProcessWithoutNullStreams;
+	let spawnError: unknown;
+
+	// azurite is a devDependency of this package, so its binary is installed in the package's own node_modules.
+	const azuriteBinaryPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'node_modules', '.bin', 'azurite-blob');
+
+	try {
+		processHandle = spawn(azuriteBinaryPath, ['--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
+			stdio: 'pipe',
+			env: {
+				...process.env,
+				AZURITE_ACCOUNTS: `${accountName}:${accountKey}`,
+			},
+		});
+	} catch (error) {
+		throw new Error(`Failed to spawn Azurite process (binary at ${azuriteBinaryPath}): ${String(error)}`);
+	}
+
+	processHandle.once('error', (error) => {
+		spawnError = error;
+	});
+
+	await waitForAzuriteReady(processHandle, port, () => spawnError);
+
+	return {
+		connectionString: `DefaultEndpointsProtocol=http;AccountName=${accountName};AccountKey=${accountKey};BlobEndpoint=http://127.0.0.1:${port}/${accountName};`,
+		stop: async () => {
+			await stopProcess(processHandle);
+			rmSync(location, { recursive: true, force: true });
+		},
+	};
+}
+
+async function getAvailablePort(): Promise<number> {
+	return await new Promise((resolve, reject) => {
+		const server = createServer();
+		server.listen(0, '127.0.0.1', () => {
+			const address = server.address();
+			if (!address || typeof address === 'string') {
+				server.close();
+				reject(new Error('Could not allocate a TCP port for Azurite'));
+				return;
+			}
+
+			const { port } = address;
+			server.close((error) => {
+				if (error) {
+					reject(error);
+					return;
+				}
+				resolve(port);
+			});
+		});
+		server.on('error', reject);
+	});
+}
+
+async function waitForAzuriteReady(processHandle: ChildProcessWithoutNullStreams, port: number, getSpawnError?: () => unknown): Promise<void> {
+	const startedAt = Date.now();
+	let lastError: unknown;
+
+	while (Date.now() - startedAt < 10_000) {
+		if (getSpawnError?.()) {
+			throw new Error(`Failed to spawn Azurite process: ${String(getSpawnError())}`);
+		}
+
+		if (processHandle.exitCode !== null) {
+			const stderr = processHandle.stderr.read()?.toString() ?? '';
+			throw new Error(`Azurite exited before becoming ready: ${stderr}`);
+		}
+
+		try {
+			await canConnect(port);
+			return;
+		} catch (error) {
+			lastError = error;
+			await delay(100);
+		}
+	}
+
+	throw new Error(`Timed out waiting for Azurite to start on port ${port}: ${String(lastError)}`);
+}
+
+async function canConnect(port: number): Promise<void> {
+	await new Promise<void>((resolve, reject) => {
+		const connection = new Socket();
+		connection.setTimeout(200);
+		connection.once('error', reject);
+		connection.once('timeout', () => {
+			connection.destroy();
+			reject(new Error('Timed out connecting to Azurite'));
+		});
+		connection.connect(port, '127.0.0.1', () => {
+			connection.end();
+			resolve();
+		});
+	});
+}
+
+async function stopProcess(processHandle: ChildProcessWithoutNullStreams): Promise<void> {
+	if (processHandle.exitCode !== null) {
+		return;
+	}
+
+	processHandle.kill('SIGTERM');
+	await new Promise<void>((resolve) => {
+		processHandle.once('exit', () => resolve());
+		setTimeout(() => {
+			if (processHandle.exitCode === null) {
+				processHandle.kill('SIGKILL');
+			}
+			resolve();
+		}, 2_000);
+	});
+}
+
+function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
