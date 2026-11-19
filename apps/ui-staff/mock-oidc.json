@@ -1,0 +1,9 @@
+[
+	{
+		"name": "staff",
+		"envVars": {
+			"clientId": "VITE_APP_UI_STAFF_OIDC_CLIENT_ID",
+			"redirectUri": "VITE_APP_UI_STAFF_OIDC_REDIRECT_URI"
+		}
+	}
+]

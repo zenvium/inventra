@@ -1,0 +1,42 @@
+{
+	"name": "@apps/api",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/index.js",
+	"scripts": {
+		"predev": "pnpm run build",
+		"dev": "pnpm exec portless api.inventra.localhost --force node start-dev.ts",
+		"predev:worktree": "pnpm run build",
+		"dev:worktree": "pnpm exec portless api.inventra.${WORKTREE_NAME}.localhost --force node start-dev.ts",
+		"build": "tsc --build",
+		"start": "func start",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
+		"azurite": "node start-azurite.ts",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"clean": "rimraf dist local.settings.json"
+	},
+	"dependencies": {
+		"@azure/functions": "catalog:",
+		"@cellix/api-core": "workspace:*",
+		"@cellix/service-mongoose": "workspace:*",
+		"@invt/application-services": "workspace:*",
+		"@cellix/service-apollo-server": "workspace:*",
+		"@invt/graphql": "workspace:*",
+		"@invt/graphql-handler": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"@invt-verification/archunit-tests": "workspace:*",
+		"@types/node": "catalog:",
+		"azurite": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

@@ -1,0 +1,28 @@
+enum SalesOrderStatus {
+	DRAFT
+	CONFIRMED
+	FULFILLED
+	CANCELLED
+}
+
+type SalesOrderItem {
+	productId: ObjectID!
+	warehouseId: ObjectID!
+	quantity: Float!
+	unitPrice: Float!
+}
+
+type SalesOrder implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	customerId: ObjectID!
+	status: SalesOrderStatus!
+	items: [SalesOrderItem!]!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	salesOrderById(id: ObjectID!): SalesOrder
+}

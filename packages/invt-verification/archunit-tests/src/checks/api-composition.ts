@@ -6,7 +6,7 @@ import { exportedFunctions, identifierPresent } from '../skill-members.ts';
 import { exportedConstNames } from '../typescript-text.ts';
 
 /**
- * The composition file the caller passes. The Cellix host is apps/api2.
+ * The composition file the caller passes. The Cellix host is apps/api.
  * Queue and timer registration is checked for the handler files the caller passes.
  */
 export interface ApiCompositionConfig {
@@ -39,8 +39,8 @@ function compositionFile(compositionFilePath: string): ArchitectureViolation[] {
 /** Rule: api.composition.target. */
 function compositionTarget(compositionFile: string, parts: readonly string[]): ArchitectureViolation[] {
 	const violations: ArchitectureViolation[] = [];
-	if (!parts.includes('api2')) violations.push(violation('api.composition.target', compositionFile, 'apiComposition points at apps/api2. The legacy apps/api host is not the Cellix composition target.'));
-	if (parts.includes('api')) violations.push(violation('api.composition.target', compositionFile, 'apps/api is not the composition target.'));
+	if (!parts.includes('api')) violations.push(violation('api.composition.target', compositionFile, 'apiComposition points at apps/api.'));
+	if (parts.includes('api2')) violations.push(violation('api.composition.target', compositionFile, 'apps/api2 is not the composition target.'));
 	return violations;
 }
 

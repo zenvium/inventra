@@ -1,0 +1,60 @@
+packages:
+  - "apps/*"
+  - "packages/cellix/*"
+  - "packages/invt/*"
+  - "packages/invt-verification/*"
+
+allowBuilds:
+  '@apollo/protobufjs': true
+  esbuild: true
+  mongodb-memory-server: true
+
+engineStrict: true
+verifyDepsBeforeRun: false
+
+overrides:
+  azurite: 3.35.0
+  happy-dom: 20.10.1
+
+catalog:
+  '@apollo/server': 5.5.0
+  '@azure/functions': 4.11.0
+  '@azure/storage-blob': 12.31.0
+  '@azure/storage-queue': 12.31.0
+  '@cucumber/cucumber': 12.8.1
+  '@cucumber/messages': 32.3.1
+  '@dr.pogodin/react-helmet': ^3.0.2
+  '@serenity-js/assertions': 3.43.0
+  '@serenity-js/console-reporter': 3.43.0
+  '@serenity-js/core': 3.43.0
+  '@serenity-js/cucumber': 3.43.0
+  '@serenity-js/serenity-bdd': 3.43.0
+  '@storybook/addon-vitest': 10.4.2
+  '@types/node': ^22.19.5
+  '@types/react': ^19.2.14
+  '@types/react-dom': ^19.2.14
+  '@vitejs/plugin-react': ^6.0.1
+  '@vitest/browser': 4.1.11
+  '@vitest/browser-playwright': 4.1.11
+  '@vitest/coverage-istanbul': 4.1.11
+  '@typescript/native-preview': 7.0.0-dev.20260428.1
+  antd: 6.3.5
+  archunit: ^2.1.63
+  azurite: 3.35.0
+  esbuild: 0.28.1
+  graphql: ^16.10.0
+  mongodb: 6.18.0
+  mongodb-memory-server: ^10.1.4
+  mongoose: 8.24.1
+  playwright: 1.59.0
+  react: ^19.2.7
+  react-dom: ^19.2.7
+  react-oidc-context: ^3.3.0
+  react-router-dom: 7.18.0
+  rimraf: 6.0.1
+  turbo: 2.8.20
+  tsx: ^4.21.0
+  typescript: 5.9.3
+  vite: 8.0.16
+  vite-plugin-node-polyfills: ^0.28.0
+  vitest: 4.1.11

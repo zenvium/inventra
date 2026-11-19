@@ -372,9 +372,9 @@ describe('rule fixtures', () => {
 		expect(messages.some((line) => line.includes('timer.shape'))).toBe(true);
 	});
 
-	it('rejects composition aimed at apps/api', async () => {
+	it('rejects composition aimed at apps/api2', async () => {
 		const root = await tempRoot();
-		const compositionFile = path.join(root, 'apps/api/src/index.ts');
+		const compositionFile = path.join(root, 'apps/api2/src/index.ts');
 		await mkdir(path.dirname(compositionFile), { recursive: true });
 		await writeFile(compositionFile, 'export const host = {};\n');
 		const messages = formatViolations(await checkApiComposition({ compositionFile }));
@@ -432,7 +432,7 @@ describe('rule fixtures', () => {
 				persistenceRoot: empty,
 				applicationServicesRoot: empty,
 				modelsRoot: empty,
-				scope: '@pwy',
+				scope: '@invt',
 			}),
 		);
 		expect(messages.some((line) => line.includes('domain.imports') && line.includes('mongoose'))).toBe(true);
@@ -451,7 +451,7 @@ describe('rule fixtures', () => {
 				persistenceRoot: empty,
 				applicationServicesRoot: empty,
 				modelsRoot: empty,
-				scope: '@pwy',
+				scope: '@invt',
 			}),
 		);
 		expect(messages.some((line) => line.includes('mongoose'))).toBe(false);

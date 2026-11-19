@@ -1,0 +1,15 @@
+type Warehouse implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	name: String!
+	code: String!
+	address: Address
+	isActive: Boolean!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	warehouseById(id: ObjectID!): Warehouse
+}

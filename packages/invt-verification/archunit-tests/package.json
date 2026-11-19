@@ -1,7 +1,7 @@
 {
-	"name": "@pwy-verification/archunit-tests",
+	"name": "@invt-verification/archunit-tests",
 	"version": "1.0.0",
-	"description": "Architectural fitness tests for Pathways Cellix slices described by the cellix-rosetta skill.",
+	"description": "Architectural fitness tests for Inventra Cellix slices described by the cellix-rosetta skill.",
 	"private": true,
 	"type": "module",
 	"exports": {

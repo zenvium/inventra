@@ -1,0 +1,12 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": ".",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"lib": ["ES2023", "DOM", "DOM.Iterable"]
+	},
+	"include": ["src/**/*.ts", "features/**/*.ts"],
+	"exclude": ["node_modules", "dist", "coverage", "reports", "target"],
+	"references": [{ "path": "../../cellix/serenity-framework" }]
+}

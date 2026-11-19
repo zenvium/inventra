@@ -1,0 +1,20 @@
+type Product implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	sku: String!
+	name: String!
+	description: String
+	category: String
+	price: Float!
+	cost: Float!
+	unit: String!
+	reorderPoint: Float!
+	isActive: Boolean!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	productById(id: ObjectID!): Product
+}

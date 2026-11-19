@@ -1,16 +1,18 @@
-# Inventory
+# Inventra data structure
 
-Use this file as the plain-text source structure for the Cellix Rosetta skill. It represents the supplied TypeScript interfaces; `Inventory` is the context.
+Use this file as the plain-text source structure for the Cellix Rosetta skill. It represents the supplied TypeScript interfaces across bounded contexts.
 
 ## Translation notes
 
 - Context: `inventory`.
 - Each top-level entity below is a subdomain. Collection names are intentionally omitted because the source interfaces do not specify them. When creating a model, ask for the collection names; when updating one, use the existing mongoose model's collection.
 - `ID` is an alias for `string`. ID-valued fields therefore remain strings unless the product model explicitly defines a reference.
-- The top-level TypeScript `id: ID` is the aggregate identity. It is represented as the standard root `_id` row for persistence; it is not an additional aggregate field.
-- `Rules / Notes` on each `_id` row records the source property name that was mapped to the persistence identity.
+- The top-level TypeScript `id: ID` is the aggregate user. It is represented as the standard root `_id` row for persistence; it is not an additional aggregate field.
+- `Rules / Notes` on each `_id` row records the source property name that was mapped to the persistence user.
 - `createdAt` and `updatedAt` are standard generated timestamps. Fields ending in `?` are optional. Literal unions are closed accepted-value lists.
-- `Address`, `PurchaseOrderItem`, and `SalesOrderItem` are embedded value structures. Item arrays have no declared item identity and are value arrays.
+- `Address`, `PurchaseOrderItem`, and `SalesOrderItem` are embedded value structures. Item arrays have no declared item user and are value arrays.
+
+# Organization
 
 ## Organization
 
@@ -20,6 +22,8 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `slug` — `string; required`
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
+
+# User
 
 ## User
 
@@ -32,6 +36,8 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `isActive` — `boolean; required`
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
+
+# Catalog
 
 ## Product
 
@@ -49,6 +55,8 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `isActive` — `boolean; required`
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
+
+# Inventory
 
 ## Warehouse
 
@@ -78,6 +86,22 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `quantityOnHand` — `number; required`
 - `quantityReserved` — `number; required`
 - `updatedAt` — `timestamp; required; system-generated`
+
+## Stock Movement
+
+### Properties
+- `_id` — `ObjectId; required; unique; system-generated` | Rules / Notes: source property `id: ID`
+- `organizationId` — `string; required`
+- `productId` — `string; required`
+- `warehouseId` — `string; required`
+- `type` — `string; required; accepted values: RECEIPT, SALE, ADJUSTMENT, TRANSFER_IN, TRANSFER_OUT`
+- `quantityChange` — `number; required`
+- `referenceId` — `string; optional`
+- `reason` — `string; optional`
+- `performedBy` — `string; optional`
+- `createdAt` — `timestamp; required; system-generated`
+
+# Partner
 
 ## Supplier
 
@@ -117,6 +141,8 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
 
+# Procurement
+
 ## Purchase Order
 
 ### Properties
@@ -135,6 +161,8 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
 
+# Sale
+
 ## Sales Order
 
 ### Properties
@@ -150,17 +178,3 @@ Use this file as the plain-text source structure for the Cellix Rosetta skill. I
 - `}]`
 - `createdAt` — `timestamp; required; system-generated`
 - `updatedAt` — `timestamp; required; system-generated`
-
-## Stock Movement
-
-### Properties
-- `_id` — `ObjectId; required; unique; system-generated` | Rules / Notes: source property `id: ID`
-- `organizationId` — `string; required`
-- `productId` — `string; required`
-- `warehouseId` — `string; required`
-- `type` — `string; required; accepted values: RECEIPT, SALE, ADJUSTMENT, TRANSFER_IN, TRANSFER_OUT`
-- `quantityChange` — `number; required`
-- `referenceId` — `string; optional`
-- `reason` — `string; optional`
-- `performedBy` — `string; optional`
-- `createdAt` — `timestamp; required; system-generated`

@@ -61,7 +61,7 @@ function graphqlSdl(graphqlFile: string, sdl: string | undefined): ArchitectureV
 	if (sdl === undefined) return [];
 	const violations: ArchitectureViolation[] = [];
 	if (!/\bextend\s+type\s+(Query|Mutation)\b/.test(sdl)) violations.push(violation('graphql.sdl', graphqlFile, 'Adds one field on extend type Query or extend type Mutation. It does not duplicate a field already there.'));
-	if (!/\bid\s*:\s*ID!/.test(sdl)) violations.push(violation('graphql.sdl', graphqlFile, 'The subdomain type includes id: ID!.'));
+	if (!/\bid\s*:\s*(?:ID|ObjectID)!/.test(sdl)) violations.push(violation('graphql.sdl', graphqlFile, 'The subdomain type includes id: ID! or ObjectID!.'));
 	return violations;
 }
 

@@ -1,0 +1,22 @@
+enum UserRole {
+	ADMIN
+	MANAGER
+	EMPLOYEE
+	VIEWER
+}
+
+type User implements MongoBase {
+	id: ObjectID!
+	organizationId: ObjectID!
+	name: String!
+	email: String!
+	role: UserRole!
+	isActive: Boolean!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	userById(id: ObjectID!): User
+}

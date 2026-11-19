@@ -1,0 +1,6 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": { "composite": true, "rootDir": "src", "outDir": "dist", "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo" },
+	"include": ["src/**/*.ts"],
+	"references": [{ "path": "../application-services" }, { "path": "../domain" }, { "path": "../../cellix/graphql-codegen" }]
+}

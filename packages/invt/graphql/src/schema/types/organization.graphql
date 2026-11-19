@@ -1,0 +1,12 @@
+type Organization implements MongoBase {
+	id: ObjectID!
+	name: String!
+	slug: String!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+extend type Query {
+	organizationById(id: ObjectID!): Organization
+}

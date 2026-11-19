@@ -16,7 +16,7 @@ export interface LayerDependencyConfig {
 	persistenceRoot: string;
 	applicationServicesRoot: string;
 	modelsRoot: string;
-	/** Package scope from the domain package name, for example `@pwy`. */
+	/** Package scope from the domain package name, for example `@invt`. */
 	scope: string;
 }
 
