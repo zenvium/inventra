@@ -1,0 +1,28 @@
+# Implement barcode scanning and mobile warehouse workflows
+
+Add mobile-friendly warehouse workflows that use product and location barcodes. This prompt is standalone and does not depend on another super-prompt for missing requirements.
+
+Inspect current portal conventions and domain identifiers. Define barcode assignment, uniqueness, validation, and behavior for products or locations without a barcode. Provide responsive scan-first screens for receiving, transfers, cycle counts, picking, and stock lookup, reusing the same application services and authorization as desktop workflows. Support camera scanning where browser capabilities permit, with manual entry and accessible keyboard operation as fallback. Prevent double submission from repeated scans and provide clear success/error feedback without hiding confirmation details.
+
+Keep UI work in the relevant portal and business rules in their owning contexts; do not duplicate stock logic in the client. Add barcode fields to the correct data structures using Cellix Rosetta. Test barcode validation and repeated scan behavior, plus responsive and accessible UI flows. Run architecture checks/build and verify a mobile-sized workflow in the browser.
+
+## Required data-structure changes
+
+Represent multiple product barcodes and scannable warehouse locations:
+- Add `ProductBarcode`: `organizationId`, `productId`, `value`, optional `symbology`, `isPrimary`, `isActive`, timestamps. Enforce barcode uniqueness within an organization and allow multiple barcodes per product.
+- Add `WarehouseLocation`: `organizationId`, `warehouseId`, `code`, `name`, `barcode`, `isActive`, timestamps. Enforce location-code and barcode uniqueness within the applicable warehouse/organization.
+- Extend `Inventory` with optional `locationId` so location-level stock can be represented without losing the existing warehouse-level relationship. Define how warehouse totals are derived and prevent double-counting.
+
+## Project context and implementation requirements
+
+This is Inventra (`invt`), built using CellixJS patterns. Treat this feature request as a standalone prompt; do not depend on another super-prompt for missing context. Inspect the existing repository and relevant packages before changing architecture.
+
+Before changing data structures, read `.agents/skills/cellix-rosetta/SKILL.md` and follow its translation conventions using the plain-text `inventory-data-structure.md` source; do not require a spreadsheet. Treat that file as the source of truth for business data. Update it for durable business changes, and keep the translated models, aggregates, operations, GraphQL, and persistence synchronized with it.
+
+Keep ownership in the established bounded contexts: Organization, User, Catalog, Inventory, Partner, Procurement, and Sale. Add a separate context when the feature has distinct language, rules, or lifecycle; do not make Inventory a catch-all. Follow patterns in the CellixJS repository (`https://github.com/CellixJs/cellixjs`, checked out next to this repository) for API composition, GraphQL, persistence, frontends, and local development. Keep application services as the entry point for API operations, keep architecture-test packages synchronized using the existing per-package consumption pattern, and keep customer and staff portal responsibilities distinct.
+
+Adapt local-development consumers to the Pathways branch `jason/worktree-port`: `@cellix/local-dev` remains policy-free and owns shared worktree port/hostname mechanics and generic runners; each app keeps a thin wrapper for its own environment keys, hostname tokens, and app-specific settings. Do not duplicate process startup, port math, or worktree hostname mechanics in apps.
+
+## Vercel Board task planning
+
+When the user selects this prompt for execution or asks to queue it, consult `.agents/skills/board/SKILL.md` and use the `zenvium` team scope and `inventra/dev` channel. Break the full feature into as many Board tasks as needed; there is no fixed task count. Create self-contained task briefs with owned paths or scope, completion criteria, and proof. Use task dependencies for required sequencing, let independent tasks run in parallel, and avoid overlapping file ownership for concurrent tasks. Keep task-specific updates and results in task threads; subagents should use `inventra/dev` for coordination outside their individual task work. Follow the Board skill for command details and agent identity. Include data-structure and Cellix Rosetta work in the task graph, sequencing it before dependent implementation tasks or combining it with tightly coupled work.

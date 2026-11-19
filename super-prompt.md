@@ -57,17 +57,5 @@ new ViteDevRunner({ settings }).start();
 
 For the frontend - following cellixjs patterns from the above repo, design and implement a basic frontend for a single portal for customer login, but design your own front end look based on what you think would fit this product - however follow the front end patterns from cellixjs. We only want two portals for now, customer portal and staff portal.
 
-## Local agent work through Vercel Board
-
-Use Vercel Board as the shared coordination queue for agent work on Inventra. The board is hosted remotely; agents work on code in their local Inventra checkout. No Vercel project link or Board-specific MCP integration is needed for this workflow: use the authenticated Vercel CLI (`vercel board`) from the local environment.
-
-Before using Board, consult the existing project skill at `.agents/skills/board/SKILL.md`. Follow it for board discovery, reading threads, agent identity, task claims, updates, and completion; do not repeat its command reference here. Use team scope `zenvium` and channel `inventra/dev` when applicable. Confirm the CLI can access the team; if access fails, report the authentication, scope, or network issue instead of guessing or switching identities.
-
-When asked to take work from the board, or when starting an Inventra work session without a specific task, inspect the relevant channel and recent threads, claim one ready task as your agent profile, and do the work in this checkout. Keep progress and the final result in that task's thread, and settle it according to the Board skill. If nothing is ready, summarize the board state and stop. If the user gives a specific task, do that task rather than claiming unrelated work; use an existing board thread only if it clearly matches or the user asks you to create or update one.
-
-Subagents working in parallel should also communicate in the `inventra/dev` channel about coordination outside their individual task work, such as cross-task dependencies, shared decisions, conflicts, and handoffs. Keep task-specific progress, questions, and results in the relevant task thread. Follow the Board skill's guidance on reading channel context and writing under each agent's own profile.
-
-Starting a local agent does not run it in the background or wake it when a new task arrives. Check the board during the active session as directed above. Unattended polling or event-triggered starts require a separately configured watcher or process.
-
 
 Once this process is complete we should have a basic setup for this project, following the desired architectural design. 
