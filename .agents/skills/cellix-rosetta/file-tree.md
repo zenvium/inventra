@@ -14,17 +14,17 @@ Find the folders from the repo. Do not read `factory.json`. Do not assume a prod
 | `<queue-operations>` | `src` of the `queue-operations` package beside the application-services package |
 | `<timer-operations>` | `src` of the `timer-operations` package beside the application-services package |
 
-Substitute every other token below from the normalized workbook or plain-text structure, or from the name the user gave.
+Substitute every other token below from the sheet or from the name the user gave.
 
 | Token | Fill with |
 | --- | --- |
-| `<context>` | Singular kebab context from the Overview header or text heading. `harbor`, not `harbors` |
+| `<context>` | Singular kebab context from the Overview header. `harbor`, not `harbors` |
 | `<Context>` | Pascal context |
 | `<contextCamel>` | Camel context |
-| `<subdomain>` | Singular kebab subdomain from the linked sheet tab or text heading. `harbor`, not `harbors` |
+| `<subdomain>` | Singular kebab subdomain from the linked sheet tab. `harbor`, not `harbors` |
 | `<Subdomain>` | Pascal subdomain |
 | `<subdomainCamel>` | Camel subdomain |
-| `<field>` | Property name, camelCase, as written in the supplied structure |
+| `<field>` | Property name, camelCase, as written on the sheet |
 | `<Field>` | Pascal form of `<field>` |
 | `<nested>` | Kebab form of a nested property |
 | `<Nested>` | Pascal form of `<nested>` |
@@ -38,7 +38,7 @@ Substitute every other token below from the normalized workbook or plain-text st
 | `<Queue>` | Pascal form of `<queue>` |
 | `<schedule-env>` | Environment variable that holds the timer cron, the user named |
 
-A header or text heading `Item Detail` is context `item-detail`. A sheet tab or text heading `itemDetail` is subdomain `item-detail`. A name that is already one word stays that word. A property `label` is `<field>` `label` and `<Field>` `Label`.
+A header `Item Detail` is context `item-detail`. A sheet tab `itemDetail` is subdomain `item-detail`. A sheet tab that is already one word stays that word. A property `label` is `<field>` `label` and `<Field>` `Label`.
 
 Open the linked page for every file you write. The sample is the body of a file that does not exist yet. An existing file keeps the declaration style it already uses. Do not copy a second layout from an existing product.
 

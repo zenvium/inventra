@@ -1,6 +1,6 @@
 # Field types
 
-The normalized tree from [excel/read.md](excel/read.md) or [text-format.md](text-format.md) classifies each node. This page decides the prop. An ObjectId there is `string` plus `constraints.reference` or `constraints.storage`. An in-repo `reference:` becomes that aggregate's entity reference plus `load<Field>()`. Any other ObjectId stays `string`.
+Shape in [excel/read.md](excel/read.md) classifies the cell. This page decides the prop. An ObjectId there is `string` plus `constraints.reference` or `constraints.storage`. An in-repo `reference:` becomes that aggregate's entity reference plus `load<Field>()`. Any other ObjectId stays `string`.
 
 ## Field type
 
@@ -54,21 +54,21 @@ The class body stays empty. `pattern` is added as a property of that object when
 
 ## Owned names
 
-Do not declare these as fields on the aggregate: root `_id`, `schemaVersion`, `createdAt`, `updatedAt`. The aggregate props list the three timestamps as `readonly`. The entity props list `createdAt` and `updatedAt` as `readonly`. A value object does not gain them unless the supplied structure lists them inside that object as ordinary fields. Prefer skipping them there too. The mongoose value-object schema still sets `timestamps: true`.
+Do not declare these as fields on the aggregate: root `_id`, `schemaVersion`, `createdAt`, `updatedAt`. The aggregate props list the three timestamps as `readonly`. The entity props list `createdAt` and `updatedAt` as `readonly`. A value object does not gain them unless the sheet lists them inside that object as ordinary fields. Prefer skipping them there too. The mongoose value-object schema still sets `timestamps: true`.
 
 On a sheet written from code, root `_id` and root `schemaVersion` are still the first property rows. They come from the mongoose model, which extends `MongooseSeedwork.Base`. The aggregate does not declare `_id` — `DomainEntityProps` calls it `id` — and it lists `schemaVersion` only as a readonly timestamp. Walking the aggregate drops `_id` and leaves `schemaVersion` off the top of the sheet.
 
-`dataVersion` is a real field when the supplied structure has it.
+`dataVersion` is a real field when the sheet has it.
 
 ## Permissions
 
 The role matrix is not a permission list. A new subdomain uses one permission, `canManage<Subdomain>`, on the context permissions interface. Setter permission checks are not written yet. Do not invent a permission from a column header.
 
-A role subdomain does not take its flags from the supplied structure yet. Map them in [files/domain/role.aggregate.md](files/domain/role.aggregate.md): one `<subdomain>-permissions.ts`, and one `<subdomain>-<group>-permissions.ts` per group, the same way a subdomain is mapped onto its files.
+A role subdomain does not take its flags from the sheet yet. Map them in [files/domain/role.aggregate.md](files/domain/role.aggregate.md): one `<subdomain>-permissions.ts`, and one `<subdomain>-<group>-permissions.ts` per group, the same way a subdomain is mapped onto its files.
 
 ## From code back to rows
 
-For workbook export, [excel/write.md](excel/write.md) writes this object into the workbook. For plain-text export, render the same structure using [text-format.md](text-format.md). A field and a nested block use the same node shape as the shape section of [excel/read.md](excel/read.md). Put `dataType` on every field. That string is the DataType value.
+[excel/write.md](excel/write.md) writes this object into the workbook. Do not save it as a file. A field and a nested block use the same node shape as the shape section of [excel/read.md](excel/read.md). Put `dataType` on every field. That string is the DataType cell.
 
 ```json
 {
@@ -88,7 +88,7 @@ Read root `_id` and root `schemaVersion` from the mongoose model, not from the a
 | `_id` | `ObjectId; required; unique; system-generated` |
 | `schemaVersion` | `string; default: 1.0.0; system-populated` |
 
-Pass `idDataType` when the existing workbook's `_id` cell differs from that default. For plain text, preserve the explicit `_id` DataType clause.
+Pass `idDataType` when the existing sheet's `_id` cell differs from that default.
 
 `write` still appends root `createdAt` and `updatedAt` after the nested blocks. Pass `createdAtDataType` and `updatedAtDataType` when the schema says more than `timestamp; system-generated`. Fields that sit after those timestamps on the schema, such as `createdUser` and `updatedUser`, go in `afterTimestamps`. `write` also inserts `_id` inside an `entity` block.
 
@@ -96,7 +96,7 @@ Pass `schemaVersionDataType` from the mongoose path. Include `required` when the
 
 Walk the mongoose schema in path order, and the matching props interface for nullability. This is the reverse of `read`: every path becomes a row `read` would return, including nested blocks. Do not stop at the root scalars. Skip methods, `load<Field>`, derived getters, and members that exist only on the reference interface. A path that exists only on the schema is still a row. Skip `schemaVersion`, `createdAt`, and `updatedAt` inside an entity. A value-object schema with `timestamps: true` does not add those rows.
 
-An array path is `[{`. When that array schema does not set `_id: false`, the block is `kind: entity` and the exported structure includes an `_id` row. Mongoose gives array elements an `_id` unless the schema turns it off. `NestedPathOptions` sets `_id: false`, so that object is `kind: value` with no `_id` row. A `[{` whose schema sets `_id: false` is `kind: value-array`.
+An array path is `[{`. When that array schema does not set `_id: false`, the block is `kind: entity` and the sheet has an `_id` row. Mongoose gives array elements an `_id` unless the schema turns it off. `NestedPathOptions` sets `_id: false`, so that object is `kind: value` with no `_id` row. A `[{` whose schema sets `_id: false` is `kind: value-array`.
 
 | Prop | `type` | `dataType` |
 | --- | --- | --- |

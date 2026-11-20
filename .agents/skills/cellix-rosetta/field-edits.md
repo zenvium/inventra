@@ -4,7 +4,7 @@
 
 ## Find the files
 
-For workbook input, `shape` prints `context` and `subdomain`; the context is the Overview column header and the subdomain is linked under it. For plain text, use the normalized context and subdomain headings from [text-format.md](text-format.md).
+`shape` prints `context` and `subdomain`. The context is the Overview column header. The subdomain is the sheet linked under that header.
 
 Search the subdomain folder, not the whole repo:
 
@@ -25,7 +25,7 @@ The folder context can differ from the Overview header. Open the aggregate that 
 
 Inside the subdomain directory, the field's owner is the props interface that declares it. A root `<field>` is on `<Subdomain>Props`. A field on a value object is on that object's props. A field inside a collection is on that entity's props. The file may be `<nested>.entity.ts` or a prefixed name already used in the folder. Follow the import. Match that prefix when you add a file.
 
-A getter that is not on a props interface is behavior. Leave it unless the supplied structure removed the prop it reads.
+A getter that is not on a props interface is behavior. Leave it unless the sheet removed the prop it reads.
 
 ## Where a field lives
 
@@ -44,7 +44,7 @@ Role letters, legal columns, and rules do not get a line of code. `minLength`, `
 
 ## Add
 
-Compare the normalized structure's tree with the props already in code. Add what the source has and the code lacks. Removal is the next section. A type that differs is [Change a type](#change-a-type), not a second field. Do not remove `schemaVersion`, `createdAt`, or `updatedAt`. Shape skips them, and they stay on the aggregate. Do not create a second aggregate. Do not replace a file with a fresh template. Edit the declaration that already names the field.
+Compare the sheet's `shape` tree with the props already in code. Add what the sheet has and the code lacks. Removal is the next section. A type that differs is [Change a type](#change-a-type), not a second field. Do not remove `schemaVersion`, `createdAt`, or `updatedAt`. Shape skips them, and they stay on the aggregate. Do not create a second aggregate. Do not replace a file with a fresh template. Edit the declaration that already names the field.
 
 Add the prop next to the other props on that interface. Add the getter and setter beside the other members. When the class has `get createdAt`, put them above it. Otherwise put them at the end of the class.
 
@@ -70,7 +70,7 @@ Remove a `getNewInstance` parameter everywhere it was added: the aggregate signa
 
 Removing a nested block removes its prop from the parent, the parent getter, the import, the mongoose schema, the seed value, and the adapter member. Delete `<nested>.entity.ts`, `<nested>.value-object.ts`, and `<nested>.value-objects.ts` when nothing else imports them. Remove the names from the aggregate reference `Omit` list. Do not delete the visa, the passport, or a permission another subdomain uses.
 
-Removing the last field on an entity leaves the `_id` and the timestamps. If the source removed the whole `[{` block, remove the collection. Do not leave an empty props interface behind.
+Removing the last field on an entity leaves the `_id` and the timestamps. If the sheet removed the whole `[{` block, remove the collection. Do not leave an empty props interface behind.
 
 ## Change a type
 
@@ -83,7 +83,7 @@ Edit the type on the props, the getter, the setter, the mongoose field, and the 
 | `string` | `'A' \| 'B'` | delete the `VOString`. Schema stays `String` |
 | scalar | `date`, `number`, `boolean` | schema `Date`, `Number`, or `Boolean` |
 | object `{` | collection `[{` with `_id` | the prop becomes `PropArray`. Add the entity file. The parent getter maps `.items` |
-| collection | object `{` | the prop becomes `<Name>Props`. Delete the entity file if the source no longer has `_id` |
+| collection | object `{` | the prop becomes `<Name>Props`. Delete the entity file if the sheet no longer has `_id` |
 
 A length or pattern change edits the existing `VOString` options. It does not add a field.
 
@@ -91,4 +91,4 @@ A length or pattern change edits the existing `VOString` options. It does not ad
 
 A query or update parameter is not a document field. Change it only when the user names that command. Add the property on the command interface. A query parameter is optional (`name?: type`) and is added to the read-repository method. The method body stays `return Promise.reject(new Error('not implemented'))` until you are filling in behavior. An update parameter is added to the command. The assignment comment inside `withScopedTransaction` stays.
 
-Do not add a structure field to a command unless that command's input includes it.
+Do not add a sheet field to a command unless that command's input includes it.
